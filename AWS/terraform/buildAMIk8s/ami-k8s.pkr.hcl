@@ -40,6 +40,10 @@ build {
     source      = "scripts/install_k8s.sh"
     destination = "/tmp/install_k8s.sh"
   }
+  provisioner "file" {
+    source      = "scripts/functions.sh"
+    destination = "/tmp/functions.sh"
+  }
 
   # Run the script with the version argument
   provisioner "shell" {

@@ -12,7 +12,7 @@ fi
 PKG_VER="${K8S_VERSION_RAW}-00"
 MAIN_VER="${K8S_VERSION_RAW%.*}"
 
-source functions.sh
+source "$(dirname "$0")/functions.sh"
 
 log "Starting Kubernetes control plane setup (requested version: ${K8S_VERSION_RAW}, pkg version: ${PKG_VER})"
 
@@ -29,7 +29,7 @@ enabled=1
 gpgcheck=1
 gpgkey=https://pkgs.k8s.io/core:/stable:/v${MAIN_VER}/rpm/repodata/repomd.xml.key
 EOF
-sudo yum install -y kubelet-"${K8S_VERSION_RAW}" kubeadm-"${K8S_VERSION_RAW}" kubectl-"${K8S_VERSION_RAW}"
+sudo yum install -y kubelet-"${K8S_VERSION_RAW}" kubeadm-"${K8S_VERSION_RAW}" kubectl-"${K8S_VERSION_RAW}" iproute-tc
 
 log "Disabling swap..."
 sudo swapoff -a
