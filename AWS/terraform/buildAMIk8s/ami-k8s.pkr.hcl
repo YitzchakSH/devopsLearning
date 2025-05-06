@@ -17,7 +17,7 @@ variable "k8s_version" {
 
 source "amazon-ebs" "k8s-ami" {
   region                  = "us-east-2"
-  instance_type           = "t3.miremoveAllAmi.shcro"
+  instance_type           = "t3.micro"
   source_ami_filter {
     owners      = ["amazon"]
     filters     = {
@@ -37,11 +37,11 @@ build {
 
   # Copy the install script to the instance
   provisioner "file" {
-    source      = "scripts/install_k8s.sh"
+    source      = "${path.root}/scripts/install_k8s.sh"
     destination = "/tmp/install_k8s.sh"
   }
   provisioner "file" {
-    source      = "scripts/functions.sh"
+    source      = "${path.root}/scripts/functions.sh"
     destination = "/tmp/functions.sh"
   }
 

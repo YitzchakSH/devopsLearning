@@ -12,7 +12,7 @@ fi
 PKG_VER="${K8S_VERSION_RAW}-00"
 MAIN_VER="${K8S_VERSION_RAW%.*}"
 
-source functions.sh
+source "$(dirname "$0")/functions.sh"
 
 # Function to start a service and wait until it becomes active
 start_and_wait_for_service() {
