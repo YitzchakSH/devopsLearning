@@ -18,8 +18,8 @@ AMI=$(aws ec2 describe-images \
 
 if [ -z "${AMI}" ]; then
     SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
-    cd "$SCRIPT_DIR/../../../ami-k8s/"
-    packer build -var "k8s_version=$K8S_VERSION" "$(dirname "$0")/../ami-k8s.pkr.hcl" >&2
+    cd "$SCRIPT_DIR/../../../../ami-k8s/"
+    packer build -var "k8s_version=$K8S_VERSION" ami-k8s.pkr.hcl >&2
 fi
 
 AMI = $(aws ec2 describe-images \
