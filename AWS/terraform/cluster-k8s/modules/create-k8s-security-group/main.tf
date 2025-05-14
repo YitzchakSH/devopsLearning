@@ -1,7 +1,7 @@
 resource "aws_security_group" "k8s_sg" {
   name        = "k8s-ec2-sg"
   description = "Allow HTTP/HTTPS in from internet, allow in-cluster traffic"
-  vpc_id      = aws_vpc.k8s_vpc.id
+  vpc_id      = var.vpc_id
 
   # Inbound: Allow HTTP (80) and HTTPS (443) from anywhere (internet)
   ingress {
@@ -20,13 +20,12 @@ resource "aws_security_group" "k8s_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  # Inbound: Allow in-cluster traffic from instances in the same VPC (same security group)
-  ingress {
-    description = "Allow in-cluster communication"
-    from_port   = 0
-    to_port     = 65535 
+    ingress {
+    description = "Allow SSH from internet"
+    from_port   = 22
+    to_port     = 22
     protocol    = "tcp"
-    security_groups = [aws_security_group.k8s_sg.id]  # Allow traffic from the same security group
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -40,4 +39,16 @@ resource "aws_security_group" "k8s_sg" {
   tags = {
     Name = "k8s-ec2-sg"
   }
+}
+
+
+# In-cluster communication: Allow all TCP from same SG
+resource "aws_security_group_rule" "allow_in_cluster" {
+  type                     = "ingress"
+  from_port               = 0
+  to_port                 = 65535
+  protocol                = "tcp"
+  security_group_id       = aws_security_group.k8s_sg.id
+  source_security_group_id = aws_security_group.k8s_sg.id
+  description             = "Allow in-cluster communication"
 }

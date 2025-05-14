@@ -12,3 +12,8 @@ variable "worker_count" {
   type    = number
   default = 2
 }
+
+variable "key_name" {
+  type    = string
+  default = "k8s-key"
+}
