@@ -26,6 +26,7 @@ module "init-cluster" {
   security_group_id = module.create-k8s-security-group.security_group_id
   key_name = module.create-key-pair.key_name
   private_key_path = module.create-key-pair.private_key_path
+  k8s_version = var.k8s_version
 }
 
 # module "create-control-plane" {
