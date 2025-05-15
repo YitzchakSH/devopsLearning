@@ -17,3 +17,15 @@ variable "subnet_id" {
 variable "security_group_id" {
   type    = string
 }
+
+variable "key_name" {
+  type    = string
+}
+
+variable "private_key_path" {
+  type    = string
+}
+
+variable "k8s_version" {
+  type    = string
+}
