@@ -26,7 +26,6 @@ resource "aws_instance" "k8s_control_plane" {
     inline = [
       "chmod -R +x /tmp/scripts",
       "/tmp/scripts/init_cluster.sh \"${var.k8s_version}\"",
-      # ,
       # "/tmp/create_control_pane_secret.sh",
       # "/tmp/create_worker_secret.sh"
     ]

@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ "$#" -ne 1 ]; then
-  echo "Usage: $0 <kubernetes-version> (e.g. 1.23.0) <number of control planes> <number of workers>" >&2
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 <kubernetes-version> (e.g. 1.23.0) <endpoint DNS Name/IP>" >&2
   exit 1
 fi
-K8S_VERSION_RAW="${1:-}"
+K8S_VERSION_RAW="$1"
+K8S_ENDPOINT="$2"
 
 # Logging helper
 log() {
@@ -25,7 +26,11 @@ EOF
 sudo sysctl --system
 
 log "Initializing the Kubernetes control plane node..."
-sudo kubeadm init --pod-network-cidr 192.168.0.0/16 --kubernetes-version ${K8S_VERSION_RAW}
+sudo kubeadm init \
+  --control-plane-endpoint ${K8S_ENDPOINT} \
+  --upload-certs \
+  --pod-network-cidr 192.168.0.0/16 \
+  --kubernetes-version ${K8S_VERSION_RAW}
 
 # Step 3: Set up kubeconfig for the user
 log "Setting up kubeconfig for user..."
