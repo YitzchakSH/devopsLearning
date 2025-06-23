@@ -99,6 +99,11 @@
 - על מנת להתחבר ל-role המשתמש צריך הרשאה מסוג "sts:AssumeRole" ועם resource של ה-role.
 - ה-role פעיל לפרק זמן שהוגדר, בין שעה ל-12 שעות
 
+### Insstance Profile
+
+- אוסף של role.
+- ניתן לשיוך ל-EC2 בלבד.
+
 ### IAM identity center
 
 - מאפשר ניהול מרכזי עבור משתמשי קצה.
@@ -315,6 +320,14 @@
 - ה-security group מוגבל ל-VPC אחד, אבל יכול להיות במספר availability zones.
 - יכול להכיל לפי IP או לפי אובייקטים בסגנון security group אחר.
 
+###  route 53
+
+- שירות ה-DNS של AWS עם פי'צרים.
+- מספק אפשרויות לרישום דומיין, וניהול רשומות DNS
+- מאפשר לנתב  פניות ל-regions שונים בהתאם למיקום או לכתובת ה-IP
+- מאפשר לבצע health check ל-region ולהפנות לאחר במידת הצורך.
+- מאפשר לבצע load balancing בין regions שונים, עם משקל.
+
 ## חיבור לרשת פרטית
 
 - ע"מ לחבר לרשת פרטית ישנם שתי אפשרויות, וניתן לשלב את שתיהן:
@@ -345,6 +358,28 @@
   - Direct Connect Connection -  מייצג את החיבור הפיזי בין הלקוח ל-AWS.
   - Virtual Interface (VIF) – מציין איך אתה משתמש בחיבור (private, public או transit)
   - Direct Connect Gateway (DXGW) - רשות - מאפשר ניהול מרכזי לניתוב חיבורים ל-VPCs שונים.
+
+## perfomence improve
+
+### CloudFront
+
+- מהווה cache עבור פניות מרוחקות
+- פרוס ברחבי העולם
+- עובד בפרוטוקולי HTTP/HTTPS
+- גם במקרה שאין cache - מקצר הגעה ל-region, מכיוון שמהווה שער גישה ל-AWS backbone.
+- יכול לשמש כ-cache עבור מגוון רחב של שירותים, כדוג' S3, EC2, LB, Lambda.
+- יכול להכיל תעודה עבור האתר ולנהל ממש מוצפן.
+- יכול להפעיל בעצמו פונקציות lambda.
+- תומך ב-VOD (video on demand)
+- לא תומך בניתוב חכם בין regions
+
+### Global Accelerator
+
+- מספק ניתוב מהיר לכל פניות TCP/UDP ברחבי העולם.
+- מספק 2 כתובות IP עבור road53, שלמעשה מפנים אותך לאתר הקרוב ביותר של AWS לפונה.
+- מהאתר AWS הקרוב - השירות מנתב את הפניות ל-region הקרוב ביותר 
+- ניתן לשלב עם cloudefront
+
 
 # Storage
 
@@ -411,6 +446,7 @@
 - RDS standby - גיבוי ל-RDS ב-AZ אחר, במקרה הצורך הוא יהפוך ל-primary.
 
 ### DinamicDB
+
 - DB א-רלציוני.
 - ללא שרת מאחוריו.
 - מאפשר אכסון לפי key-value או מסמכים.
@@ -421,14 +457,148 @@
 - Strongly consistant או eventually consistant, תומך ACID.
 - כל ה-partitions ניתנים לכתיבה וקריאה.
 
+# DevOps on AWS
 
-- cloudFront - CACHE עבור S3
+### CloudFrormation
+
+- כלי מובנה ליצירת ותחזוק שירותים 
+- בנוי בפורמט JSON או YAML
+- מקבץ הוראות המנוהל ב-region אחד ובחשבון AWS אחד מכונה stack.
+- מקבץ הוראות המנוהל במספר regions או חשבונות AWS נקרא stackset.
+- AWS יודע לנהל גרסאות stack, ולהציג מה השתנה בכל פעם.
+- ניתן להגדיר שירותים שלא יימחקו עם ה-stack.
+- מבנה ה-template:
+  - כל מקטע מחולק לסוג המקטע, שמות משאבים עבור ה-stack, הגדרת המשאבים עצמם
+  - סוגי מקטעים:
+    - parameter - מאפשר להגדיר משתנים שניתן לערוך בעת יצירת ה-stack
+    - Resources - השירותים עצמם
+    - Output - פלט שיוצג כאשר ה-resource בעל השם התואם יסיים פריסה.
+
+### Elastic Beanstalk
+
+- פריסת קוד על שרת EC2 בצורת PaaS
+- השירות מקבל את הקוד בצורת קובץ ZIP ופורס אותו על EC2
+- כל קוד פריסה מכונה Application.
+- כל פריסת קוד מכונה environment
+- ישנם שני סוגי שרתים:
+  - Web Servers - שרתים המיועדים להריץ אתר אינטרנט פשוט.
+  - workers - שרתים המיועדים להריץ שירות שמבצע חישובים בתוך השרת
+- הקוד שהועלה נשמר ב-S3 עם הגרסאות השונות שהועלו.
+- ה-application זקוק ל-role כדי לתפקד, חובה גם להצמיד ל-EC2 key-pair ו-incstance profile
+
+## code management
+
+- AWS מכיל תשתית קוד מלאה, שנועדה להחליף את הצורך בכלים חיצוניים.
+
+### CodeCommit
+
+- הגיט של AWS.
+- ניתן להתחבר על token ייעודי - HTTP Git credential for AWS CodeCommit.
+- בתהליך גריטה, לא קיים עבור לקוחות חדשים
+
+### CodeArtifact
+
+- ה-Artifactory של AWS, לניהול חבילות Dependency.
+- ה-CodeArtifact מחולק ל-domains - סביבות נפרדות לוגיות
+- כל domain מכיל repository, שמכיל את החבילות בפועל
+- ניתן לחבר את ה-repository ל-Upstream repositories שייבא את החבילה ממקור חיצוני.
+
+### CodeBuild
+
+- ה-CI של AWS
+- ה-CodeBuild יכול לקבל את קוד המקור מכל סוג GIT או אפילו מ-S3.
+- ה-CodeBuild מקבל את הוראות הבנייה מ-buildspec.yml, שיושב כברירת מחדל בתקיית האב של קוד המקור.
+- ה-CodeBuild מיועד לבנות את הקוד, להריץ בדיקות ולדחוף את חבילות התוצר ל-repository.
+
+### CodeDeploy
+
+- ה-CD של AWS
+- פורס את התוכנה ל-EC2, Lambda, ECS
+- ניתן להריץ hooks (פקודות) בשלבי הפריסה השונים.
+- ניתן לבחור אסטרטגית שדרוג, ע"מ להימדע מ-downtime.
+- במקרה נפילה - codeDeploy יודע להריץ rollback.
+- Revision - הקוד לפריסה, מכיל גם את קובץ ה-AppSpec.
+- AppSpec - הוראות ההתקנה וה-hooks.
+- ה-CodeDeploy מחולק ל-Application - סביבות נפרדות.
+- על application מכיל Deployment Group - קבוצות שרתים המייצגות רכיב אחד.
+- Deployment - פריסה בפועל של השירותים
+
+### CodePipeline
+
+- מבצע את כלל ה-pipeline מהקוד ועד לפריסה.
+- ה-pipeline נבנה ב-aws (או מוקם באמצעות CloudFrormation וכד')
+- ב-pipeline מורכב מ-stageS - שלבים נפרדים של התהליך.
+- כל stage מורכב מ-actions, פעולות המבוצעות.
+- ה-stages מעבירים קבצים ביניהם באמצעות artifact.
+- ניתן להגדיר ממגוון של ספקים חיצוניים עבור source provider, build provider, deploy provider.
+- אפשר לדרוש אישור ידני למעבר בין stage-ים.
+
+# Serverless Computing
+
+## ECS - Elastic Container Service
+
+### task
+
+- תא של containers, כמו pod ב-kubernetes.
+- מריץ docker images שיוצרו באמצעות dockerfiles.
+
+### task definition
+
+- קובץ ההגדרות של ה-container
+- מכיל הגדרות כדוגמת:
+  - השרת עליו ה-task רץ (EC2/Faregate, OS, משאבים)
+  - role עבור ה-task
+  - הגדרות ה-container (image, פורטים)
+  - ניתור
+
+### ECS Container instances
+
+- שרתי EC2 שמיועדים להכיל tasks.
+- השרתים מסוג Amazon ECS-Optimized AMI
+- השרתים מריצים service בשם ECS agent 
+
+### Faregate
+
+- מעטפת חיצונית להרצת tasks
+- מייתר לחלוטין את הטיפול בתשתיות השרת
+
+### ECS Service
+
+- מקביל ל-SC עבור tasks
+- יודע להבצע scale במידת הצורך
+- מתחבר ל-LB.
+- פורס על פני AZ שונים.
+
+### ECS cluster
+
+- קבוצה לוגית של task-ים
+- יכול להיפרס על פני מספר AZ
+- מכיל את כל שאר האובייקטים של ECS
+
+### ECR - Elastic Container Registry
+
+- registry עבור ה-ECS - שומר על ה-docker images.
+
+##  Lambda
+
+- הרצת function כשמתרחש אירוע
+- ישנם מגוון אירועים שניתן להגדיר שיטריגו את ה-function.
+- ה-function מריץ סקריפט במגוון שפות.
+- ה-function מחובר ל-role שמאפשר לו להשפיע על אירועים אחרים.
+- בכל פעם שהאירוע מתרחש - מתחיל לרוץ instacne של ה-function, עד להגבלת concurrency.
+- ה-lambda ממוקמת ב-region, מה שאומר שכברירת מחדל לא ניתן לגשת ל-VPC
+- אם בוצע חיבור של ה-lambda ל-VPC - כשהיא תוקם, יוקם בכל subnet ENI (Elastic Network Interface).
+- אם ה-Lambda רוצה לצאת מתוך ה-VPC ל-Internet Gateway - חייב שיהיה NAT Gateway.
+
+
+
+נושאים לבדיקה בהמשך:
 - AURORA - עוטף את ה-RDS כדי לבצע אוטומציות של
   הקמות DB
-- RDS - DB רלציוני
 - RDS Proxy - פרוקסי ל-RDS
 - Elasticcache - CACHE עבור RDS
-- dinamoDB - DB לא רלציוני
 - DAX - cache עבור dinamoDB
+- SQS Queue
+- SNS Topic
 3 tier web application
 
