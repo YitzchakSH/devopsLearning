@@ -139,6 +139,7 @@
   - מספר - דור השרת
   - .
   - מילה - גודל השרת
+- ניתן לשנות סוג שרת כאשר השרת כבוי.
 
 ### AMI - Amazon Machine Images
 
@@ -160,7 +161,7 @@
 ### interface:
 
 - private IP address - כתובת IP פנימית וחד פעמית, כלומר אי אפשר להעבירה ידנית לשרת אחר.
-- Elastic IP address - כתובת IP פנימית שנוצרה מראש ושויכה זמנית עבור EC2 מסוים.
+- Elastic IP address - כתובת IP חיצונית שנוצרה מראש ושויכה זמנית עבור EC2 מסוים.
 - public IP address - כתובת IP חיצוני עבור ה-EC2, נוצרת רק כאשר נמצאים ב-public subnet. הכתובת לא מוכרת לשרת ומשויכת ע"י ה-AWS.
 - ENI - Elastic Network Interfase - זה NIC פשוט.
 - ENA - Elastic Network Adapter - זה NIC רחב ומהיר, אבל לא נתמך בכל instance.
@@ -283,6 +284,10 @@
 - כלל שירותי ה-privater service יושבים בתוך ה-VPC, ו-private services יושבים מחוץ לו באינטרנט.
 - אם יוצרים מספר VPC באותו region - מומלץ להפריד את טווח הכתובות שלהם (מכיוון שיש שירותים שמסתכלים על זה).
 
+ ### transit gateway
+
+ - חיבור בין מספר VPC ועננים פרטיים
+
 ### subnet
 
 - מקבל מה-VPC טווח כתובות ומספק אותם לשירותים היושבים תחתיו.
@@ -333,6 +338,7 @@
 - ע"מ לחבר לרשת פרטית ישנם שתי אפשרויות, וניתן לשלב את שתיהן:
   - VPN - חיבור לוגי המאבטח את התקשורת, מוכרב מ-VGW, CGW ו-VPN connection
   - Direct Connect - חיבור פיזי ל-AWS Backbone
+
 ### VGW - Virtual private GateWay
 
 - GW שמאפשר יציאה מה-AWS אל רשת פרטית אחרת
@@ -682,4 +688,12 @@
   - קריאות ל-DB ולשירותים נוספים.
 - מתעד מי ביצע את הפעולה.
 
+### naming convention
 
+- Key-pair - [app]-[env]-[region]
+- security group - [app]-[role]-[env]-sg
+- ec2 tags - מומלץ לתייג ביצירה גם את ה-volume וה-network interface:
+  - Name - שם השרת
+  - Project
+  - Environment
+  - Owner - הצוות שאחראי על השרת
